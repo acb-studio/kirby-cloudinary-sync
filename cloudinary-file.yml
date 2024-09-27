@@ -1,0 +1,39 @@
+title: Cloudinary File
+
+fields:
+  cloudinary_push:
+    label: Push to Cloudinary
+    type: cloudinarySyncAction
+    action: push
+    width: 1/3
+    when:
+      cloudinary_public_id: ""
+  cloudinary_pull:
+    label: Pull from Cloudinary
+    type: cloudinarySyncAction
+    action: pull
+    width: 1/3
+    whenQuery: cloudinary_public_id
+  cloudinary_info:
+    label: Cloudinary Public ID
+    type: info
+    theme: passive
+    text: "{{ file.cloudinary_public_id.value ?? 'File is not pushed to Cloudinary' }}"
+    width: 1/3
+  cloudinary_asset_information:
+    label: Cloudinary asset information
+    type: info
+    theme: passive
+    text: >
+      {{ file.cloudinary_width.value ?? '--' }} x {{ file.cloudinary_height.value ?? '--' }} px,
+      {{ file.cloudinaryAssetSize }}, {{ file.cloudinary_resource_type }}/{{ file.cloudinary_format }}
+    width: 1/3
+    whenQuery: cloudinary_public_id
+  cloudinary_link:
+    label: Open in Cloudinary
+    type: info
+    theme: none
+    text: >
+      (link: https://console.cloudinary.com/console/media_library/homepage/asset/{{ file.cloudinary_asset_id }}/manage text: Click here target: _blank rel: noopener noreferrer)
+      to open asset in Cloudinary console
+    whenQuery: cloudinary_asset_id
