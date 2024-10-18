@@ -1,6 +1,6 @@
 # Kirby CMS → Cloudinary sync plugin
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT) ![Kirby Version](https://img.shields.io/badge/Kirby-4-black.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT) ![Kirby-4-compatible](https://img.shields.io/badge/Kirby-4-black.svg) ![Kirby-5-compatible](https://img.shields.io/badge/Kirby-5-black.svg)
 
 [![Logo: Kirby → Cloudinary sync plugin](logo.png)](https://acb.studio/)
 
