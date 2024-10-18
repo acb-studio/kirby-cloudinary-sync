@@ -86,6 +86,10 @@ Add this to your `site/config/config.php`:
 
 To have more control over your assets, you may want to add a Cloudinary [file blueprint](https://getkirby.com/docs/reference/panel/blueprints/file). Have a look at `cloudinary-file.yml` as an example how such a blueprint can look like. You can either copy-paste the fields into your own file blueprint or you can use the automatically registered `cloudinary` blueprint for your files (in your `files` field, set `template: cloudinary`). Some of the fields make use of the [Kirby k3-whenquery plugin](https://github.com/rasteiner/k3-whenquery). It is optional to add that plugin to your project, it just hides fields that are not relevant for more convenience.
 
+### Step 5: Previously uploaded files
+
+Files added to Kirby prior to installing the plugin are not automatically synced to Cloudinary. They can be manually pushed by opening the file in the panel (after doing step 4 first so that the blueprint contains the action) and then clicking the corresponding button to push the file, or by opening the "Cloudinary Admin" area on the left side (if enabled) and selecting "Push all files to Cloudinary" (depending on the number and size of assets this can take a long time and even fail based on the PHP timeout settings - in that case, you can always click the button again because it will only push files that were not already pushed, yet).
+
 ## Contribute
 
 Feedback and contributions are welcome!
