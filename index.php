@@ -62,6 +62,7 @@ class ACBCloudinaryAssetVersion extends FileVersion
         $width = $options['width'] ?? $defaultOptions['width'] ?? null;
         $height = $options['height'] ?? $defaultOptions['height'] ?? null;
         $crop = $options['crop'] ?? $defaultOptions['crop'] ?? false;
+        $gravity = $options['gravity'] ?? $defaultOptions['gravity'] ?? 'center';
         $grayscale = $options['grayscale'] ?? $defaultOptions['grayscale'] ?? false;
 
         // not supported, yet: autoOrient, blur, sharpen, manual focus point
@@ -70,7 +71,7 @@ class ACBCloudinaryAssetVersion extends FileVersion
             $format ? ['fetch_format' => $format] : [],
             $width ? ['width' => $width] : [],
             $height ? ['height' => $height] : [],
-            $crop ? ['crop' => $crop === true ? 'auto' : $crop, 'gravity' => ($gravity ?? 'center')] : [],
+            $crop ? ['crop' => $crop === true ? 'auto' : $crop, 'gravity' => $gravity] : [],
             $grayscale ? ['effect' => 'grayscale'] : []
         ));
 
