@@ -1,6 +1,6 @@
 {
   "name": "acb-studio/kirby-cloudinary-sync",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "kirby-plugin",
   "description": "Kirby -> Cloudinary media sync plugin",
   "license": "MIT",

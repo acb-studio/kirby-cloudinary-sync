@@ -55,12 +55,13 @@ Add this to your `site/config/config.php`:
 
 #### Step 3 - Example B: Comprehensive configuration
 
-- In this example, you make use of the [Kirby DotEnv plugin](https://plugins.getkirby.com/bnomei/dotenv) (optional). In your production environment (server), you use global environment variables and for local development, you prefer a (git-ignored) `.env` file. → `key`, `secret` and `cloud` attributes can be defined as a function
-- You want to upload your images, videos and PDF files to Cloudinary. → `assetTypes` attribute
-- You have a lot of images and some bigger videos - to save space on your local disk (and to not push all these files to git), you want your local files to be automatically replaced with empty placeholder files once they were uploaded to Cloudinary. → `removeAssetsLocally` attribute
-- You want an admin area (accessible in the panel as admin from the left sidebar) allowing you to bulk-push all files that were not uploaded to Cloudinary, yet. You may also want an option to bulk-pull all files from Cloudinary (this will download the files from Cloudinary and replace your local empty placeholder files with the original ones, then delete (!) the assets on Cloudinary) → `adminArea` attribute
-- You already want to optimize your images ahead of time (eager transformations) so they are available quicker the first time they are requested. → `eagerTransformations` attribute
-- You want to customize the file naming (public ID) schema on Cloudinary. → `publicId` attribute
+- In this example, you make use of the [Kirby DotEnv plugin](https://plugins.getkirby.com/bnomei/dotenv) (optional). In your production environment (server), you use global environment variables and for local development, you prefer a (git-ignored) `.env` file. → `key`, `secret` and `cloud` options can be defined as a function
+- You want to upload your images, videos and PDF files to Cloudinary. → `assetTypes` option
+- You have a lot of images and some bigger videos - to save space on your local disk (and to not push all these files to git), you want your local files to be automatically replaced with empty placeholder files once they were uploaded to Cloudinary. → `removeAssetsLocally` option
+- You want an admin area (accessible in the panel as admin from the left sidebar) allowing you to bulk-push all files that were not uploaded to Cloudinary, yet. You may also want an option to bulk-pull all files from Cloudinary (this will download the files from Cloudinary and replace your local empty placeholder files with the original ones, then delete (!) the assets on Cloudinary) → `adminArea` option
+- You already want to optimize your images ahead of time (eager transformations) so they are available quicker the first time they are requested. → `eagerTransformations` option
+- If nothing else was specified, you want to serve your images as webp with automatic "eco" quality setting → `imageTransformationDefaults` option
+- You want to customize the file naming (public ID) schema on Cloudinary. → `publicId` option
 
 ```php
 // ... your other configuration ...
@@ -75,6 +76,10 @@ Add this to your `site/config/config.php`:
         'eagerTransformations' => fn() => [
             ['format' => 'webp', 'quality' => 'auto:eco'],
             ['format' => 'avif', 'quality' => 'auto:eco'],
+        ],
+        'imageTransformationDefaults' => [
+            'format' => 'webp',
+            'quality' => 'auto:eco'
         ],
         'publicId' => fn($file) => implode('.', array_slice(explode('.', $file->id()), 0, -1))
     ],

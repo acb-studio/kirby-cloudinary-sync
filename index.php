@@ -4,17 +4,85 @@
 
 use Kirby\Cms\App;
 use Kirby\Cms\File;
+use Kirby\Cms\FileVersion;
 use Kirby\Data\Data;
 use Kirby\Http\Remote;
 use Kirby\Filesystem\F;
 use Kirby\Toolkit\A;
+use Kirby\Toolkit\Str;
 
 use Cloudinary\Configuration\Configuration;
 use Cloudinary\Api\Upload\UploadApi;
 use Cloudinary\Api\ApiResponse;
+use Cloudinary\Asset\Image as CloudinaryImage;
+use Cloudinary\Asset\AssetType;
+use Cloudinary\Asset\AssetDescriptor;
 
 $originalFileUrlComponent = kirby()->component('file::url');
 $originalFileVersionComponent = kirby()->component('file::version');
+
+class ACBCloudinaryAssetVersion extends FileVersion
+{
+    public function __construct(array $props)
+    {
+        parent::__construct([
+            ...$props,
+            'url' => self::getTransformedURL($props['original'], $props['modifications'] ?? [])
+        ]);
+    }
+
+    public function save(): static
+    {
+        // No need to save Cloudinary transformations
+        return $this;
+    }
+
+    public static function getTransformedURL(File $file, array $options = [])
+    {
+        $untransformedUrl = $file->cloudinary_url()->value();
+
+        $cloudinaryAssetType = $file->cloudinary_resource_type()->value();
+        if (!$file->isResizable() || $cloudinaryAssetType !== AssetType::IMAGE) {
+            return $untransformedUrl;
+        }
+
+        $image = new CloudinaryImage(new AssetDescriptor(
+            $file->cloudinary_public_id()->value(),
+            AssetType::IMAGE
+        ), []);
+
+
+        $defaultOptions = kirby()->option('acb.cloudinary.imageTransformationDefaults', []);
+        if (!count($options) && !count($defaultOptions)) {
+            return $untransformedUrl;
+        }
+
+        $quality = $options['quality'] ?? $defaultOptions['quality'] ?? null;
+        $format = $options['format'] ?? $defaultOptions['format'] ?? null;
+        $width = $options['width'] ?? $defaultOptions['width'] ?? null;
+        $height = $options['height'] ?? $defaultOptions['height'] ?? null;
+        $crop = $options['crop'] ?? $defaultOptions['crop'] ?? false;
+        $grayscale = $options['grayscale'] ?? $defaultOptions['grayscale'] ?? false;
+
+        // not supported, yet: autoOrient, blur, sharpen, manual focus point
+        $image->addTransformation(A::merge(
+            $quality ? ['quality' => $quality] : [],
+            $format ? ['fetch_format' => $format] : [],
+            $width ? ['width' => $width] : [],
+            $height ? ['height' => $height] : [],
+            $crop ? ['crop' => $crop === true ? 'auto' : $crop, 'gravity' => ($gravity ?? 'center')] : [],
+            $grayscale ? ['effect' => 'grayscale'] : []
+        ));
+
+        $transformedPath = $image->toUrl()->getPath();
+        if (!Str::startsWith($transformedPath, '//image/upload/') || !Str::contains($transformedPath, '/v1/')) {
+            return $untransformedUrl;
+        }
+
+        $transformationsStr = A::first(Str::split(Str::replace($transformedPath, '//image/upload/', '/upload/'), '/v1/'));
+        return Str::replace($untransformedUrl, '/upload/', "$transformationsStr/");
+    }
+}
 
 class ACBCloudinarySync
 {
@@ -181,19 +249,23 @@ App::plugin('acb/cloudinary-sync', [
         }
     ],
     'components' => [
-        'file::url' => function (App $kirby, $file, array $options = []) use ($originalFileUrlComponent) {
+        'file::url' => function (App $kirby, File $file, array $options = []) use ($originalFileUrlComponent) {
             if (!ACBCloudinarySync::isPushed($file)) {
                 return $originalFileUrlComponent($kirby, $file, $options);
             }
 
-            return $file->cloudinary_url()->value();
+            return ACBCloudinaryAssetVersion::getTransformedURL($file);
         },
         'file::version' => function (App $kirby, File $file, array $options = []) use ($originalFileVersionComponent) {
             if (!ACBCloudinarySync::isPushed($file)) {
                 return $originalFileVersionComponent($kirby, $file, $options);
             }
 
-            return $file;
+            return new ACBCloudinaryAssetVersion([
+                'modifications' => $options,
+                'original' => $file,
+                'root' => null
+            ]);
         }
     ],
     'api' => [
