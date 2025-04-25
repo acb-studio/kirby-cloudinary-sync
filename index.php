@@ -62,7 +62,7 @@ class ACBCloudinaryAssetVersion extends FileVersion
         $width = $options['width'] ?? $defaultOptions['width'] ?? null;
         $height = $options['height'] ?? $defaultOptions['height'] ?? null;
         $crop = $options['crop'] ?? $defaultOptions['crop'] ?? false;
-        $gravity = $options['gravity'] ?? $defaultOptions['gravity'] ?? 'center';
+        $gravity = $options['gravity'] ?? $options['crop'] ?? $defaultOptions['gravity'] ?? 'center';
         $grayscale = $options['grayscale'] ?? $defaultOptions['grayscale'] ?? false;
 
         // not supported, yet: autoOrient, blur, sharpen, manual focus point
@@ -71,11 +71,17 @@ class ACBCloudinaryAssetVersion extends FileVersion
             $format ? ['fetch_format' => $format] : [],
             $width ? ['width' => $width] : [],
             $height ? ['height' => $height] : [],
-            $crop ? ['crop' => $crop === true ? 'auto' : $crop, 'gravity' => $gravity] : [],
+            $crop ? ['crop' => 'auto', 'gravity' => $gravity] : [],
             $grayscale ? ['effect' => 'grayscale'] : []
         ));
 
         $transformedPath = $image->toUrl()->getPath();
+
+        if ($crop) {
+            // circumvent library bug to solve https://github.com/acb-studio/kirby-cloudinary-sync/issues/2
+            $transformedPath = str_replace(',0,', ',', $transformedPath);
+        }
+
         if (!Str::startsWith($transformedPath, '//image/upload/') || !Str::contains($transformedPath, '/v1/')) {
             return $untransformedUrl;
         }

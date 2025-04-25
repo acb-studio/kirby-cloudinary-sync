@@ -1,6 +1,6 @@
 {
   "name": "acb-studio/kirby-cloudinary-sync",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "type": "kirby-plugin",
   "description": "Kirby -> Cloudinary media sync plugin",
   "license": "MIT",
@@ -22,7 +22,7 @@
   },
   "require": {
     "getkirby/composer-installer": "^1.1",
-    "cloudinary/cloudinary_php": "^2.14"
+    "cloudinary/cloudinary_php": "^3.1"
   },
   "extra": {
     "installer-name": "kirby-cloudinary-sync"
