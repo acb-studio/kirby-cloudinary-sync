@@ -213,7 +213,7 @@ class ACBCloudinarySync
         return $url;
     }
 
-    static function updateMetaFromResponse(File $file, ApiResponse $response = null)
+    static function updateMetaFromResponse(File $file, ?ApiResponse $response = null)
     {
         $file->update([
             'cloudinary_public_id' => $response['public_id'] ?? null,
