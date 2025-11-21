@@ -62,6 +62,7 @@ Add this to your `site/config/config.php`:
 - You already want to optimize your images ahead of time (eager transformations) so they are available quicker the first time they are requested. → `eagerTransformations` option
 - If nothing else was specified, you want to serve your images as webp with automatic "eco" quality setting → `imageTransformationDefaults` option
 - You want to customize the file naming (public ID) schema on Cloudinary. → `publicId` option
+- You use a media proxy (e.g. due to intranet/firewall restrictions) → `baseUrl` option
 
 ```php
 // ... your other configuration ...
@@ -81,7 +82,8 @@ Add this to your `site/config/config.php`:
             'format' => 'webp',
             'quality' => 'auto:eco'
         ],
-        'publicId' => fn($file) => implode('.', array_slice(explode('.', $file->id()), 0, -1))
+        'publicId' => fn($file) => implode('.', array_slice(explode('.', $file->id()), 0, -1)),
+        'baseUrl' => 'https://media.my.domain'
     ],
 ],
 // ... your other configuration ...
