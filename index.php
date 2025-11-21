@@ -49,6 +49,7 @@ class ACBCloudinaryAssetVersion extends FileVersion
         }
 
         $cloudinaryAssetType = $file->cloudinary_resource_type()->value();
+
         if (!$file->isResizable() || $cloudinaryAssetType !== AssetType::IMAGE) {
             return $untransformedUrl;
         }
@@ -58,6 +59,10 @@ class ACBCloudinaryAssetVersion extends FileVersion
             AssetType::IMAGE
         ), []);
 
+        $version = Str::match($untransformedUrl, '|/v(\d+)/|')[1] ?? null;
+        if (!$version) {
+            return $untransformedUrl;
+        }
 
         $defaultOptions = $kirby->option('acb.cloudinary.imageTransformationDefaults', []);
         if (!count($options) && !count($defaultOptions)) {
@@ -78,10 +83,12 @@ class ACBCloudinaryAssetVersion extends FileVersion
             $format ? ['fetch_format' => $format] : [],
             $width ? ['width' => $width] : [],
             $height ? ['height' => $height] : [],
-            $crop ? ['crop' => 'auto', 'gravity' => $gravity] : [],
+            $crop ? ['crop' => 'auto', 'gravity' => $gravity] : ['crop' => 'limit'],
             $grayscale ? ['effect' => 'grayscale'] : []
         ));
 
+        $image->version($version);
+        $image->extension($file->extension());
         $transformedPath = $image->toUrl()->getPath();
 
         if ($crop) {
@@ -89,12 +96,12 @@ class ACBCloudinaryAssetVersion extends FileVersion
             $transformedPath = str_replace(',0,', ',', $transformedPath);
         }
 
-        if (!Str::startsWith($transformedPath, '//image/upload/') || !Str::contains($transformedPath, '/v1/')) {
+        if (!Str::startsWith($transformedPath, '//image/upload/') || !Str::contains($transformedPath, "/v$version/")) {
             return $untransformedUrl;
         }
 
-        $transformationsStr = A::first(Str::split(Str::replace($transformedPath, '//image/upload/', '/upload/'), '/v1/'));
-        return Str::replace($untransformedUrl, '/upload/', "$transformationsStr/");
+        $transformationsStr = Str::replace($transformedPath, '//image/upload/', '/upload/');
+        return A::first(Str::split($untransformedUrl, '/upload/')) . $transformationsStr;
     }
 }
 
