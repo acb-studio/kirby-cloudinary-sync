@@ -39,7 +39,13 @@ class ACBCloudinaryAssetVersion extends FileVersion
 
     public static function getTransformedURL(File $file, array $options = [])
     {
+        $kirby = kirby();
         $untransformedUrl = $file->cloudinary_url()->value();
+
+        $customBaseUrl = $kirby->option('acb.cloudinary.baseUrl');
+        if ($customBaseUrl) {
+            $untransformedUrl = Str::replace($untransformedUrl, 'https://res.cloudinary.com', $customBaseUrl);
+        }
 
         $cloudinaryAssetType = $file->cloudinary_resource_type()->value();
         if (!$file->isResizable() || $cloudinaryAssetType !== AssetType::IMAGE) {
@@ -52,7 +58,7 @@ class ACBCloudinaryAssetVersion extends FileVersion
         ), []);
 
 
-        $defaultOptions = kirby()->option('acb.cloudinary.imageTransformationDefaults', []);
+        $defaultOptions = $kirby->option('acb.cloudinary.imageTransformationDefaults', []);
         if (!count($options) && !count($defaultOptions)) {
             return $untransformedUrl;
         }
