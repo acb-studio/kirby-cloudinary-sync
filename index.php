@@ -43,6 +43,7 @@ class ACBCloudinaryAssetVersion extends FileVersion
         $untransformedUrl = $file->cloudinary_url()->value();
 
         $customBaseUrl = $kirby->option('acb.cloudinary.baseUrl');
+        is_callable($customBaseUrl) && ($customBaseUrl = $customBaseUrl());
         if ($customBaseUrl) {
             $untransformedUrl = Str::replace($untransformedUrl, 'https://res.cloudinary.com', $customBaseUrl);
         }
