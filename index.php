@@ -55,7 +55,7 @@ class ACBCloudinaryAssetVersion extends FileVersion
         }
 
         $image = new CloudinaryImage(new AssetDescriptor(
-            $file->cloudinary_public_id()->value(),
+            $file->cloudinary_public_id()->value() . '.' . $file->extension(),
             AssetType::IMAGE
         ), []);
 
@@ -88,7 +88,6 @@ class ACBCloudinaryAssetVersion extends FileVersion
         ));
 
         $image->version($version);
-        $image->extension($file->extension());
         $transformedPath = $image->toUrl()->getPath();
 
         if ($crop) {
