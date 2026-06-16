@@ -42,6 +42,10 @@ class ACBCloudinaryAssetVersion extends FileVersion
         $kirby = kirby();
         $untransformedUrl = $file->cloudinary_url()->value();
 
+        if (!is_string($untransformedUrl)) {
+            return '';
+        }
+
         $customBaseUrl = $kirby->option('acb.cloudinary.baseUrl');
         is_callable($customBaseUrl) && ($customBaseUrl = $customBaseUrl());
         if ($customBaseUrl) {
